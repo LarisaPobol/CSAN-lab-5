@@ -17,18 +17,26 @@ namespace file_storage.CommandProcessers
             string fullPath = directory + request.RawUrl;
             try
             {
-                FileInfo info = new FileInfo(fullPath);
-                response.Headers.Add("Date", info.CreationTime.ToString());
-                response.Headers.Add("Name", info.Name);
-                response.Headers.Add("readonly", info.IsReadOnly.ToString());
-                response.Headers.Add("length", info.Length.ToString());
+                FileInfo fileInfo = new FileInfo(fullPath);
+                response.Headers.Add("length", fileInfo.Length.ToString());
+                response.Headers.Add("Name", fileInfo.Name);
+                response.Headers.Add("Date", fileInfo.CreationTime.ToString());
+                response.Headers.Add("LastAcsessTime", fileInfo.LastAccessTime.ToString());
+                
+                response.Headers.Add("readonly", fileInfo.IsReadOnly.ToString());
+                response.Headers.Add("LastWriteTime", fileInfo.LastWriteTime.ToString());
+                response.Headers.Add("Extension", fileInfo.Extension.ToString());
+                response.Headers.Add("LastAccessTimeUtc", fileInfo.LastAccessTimeUtc.ToString());
+                response.Headers.Add("LastWriteTimeUtc", fileInfo.LastWriteTimeUtc.ToString());
+
             }
             catch (FileNotFoundException)
             {
                 response.StatusCode = 404;
             }
-            catch
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 response.StatusCode = 400;
             }
             finally

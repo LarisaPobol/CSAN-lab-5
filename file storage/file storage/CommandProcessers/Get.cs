@@ -17,14 +17,17 @@ namespace file_storage.CommandProcessers
             string fullPath = directory + request.RawUrl;
             string[] directories;
             string[] files;
+            List<string> jsonEl = new List<string>();
             try
             {
                 if (!File.Exists(fullPath))
                 {
                     directories = Directory.GetDirectories(fullPath);
-                    WriteJsonToStream(streamWriter, directories);
-                    files = Directory.GetFiles(fullPath);
-                    WriteJsonToStream(streamWriter, files);
+                    AddToJsonList(directory, directories, jsonEl);
+                    files = Directory.GetFiles(fullPath);                       
+                    AddToJsonList(directory, files, jsonEl);
+                    string json = JsonConvert.SerializeObject(jsonEl);
+                    streamWriter.Write(json);
                     streamWriter.Flush();
                 }
                 else
@@ -58,13 +61,25 @@ namespace file_storage.CommandProcessers
             }
         }
 
-        private void WriteJsonToStream(StreamWriter streamWriter, IEnumerable<string> list)
+        private void AddToJsonList(string directory, string[] items, List<string> list)
         {
-            foreach (string entry in list)
+            foreach (string item in items)
             {
-                string json = JsonConvert.SerializeObject(entry);
-                streamWriter.Write(json);
+                string temp = item.Substring(directory.Length);
+                list.Add(temp);
             }
+        }
+        private void WriteJsonToStream(string directory, StreamWriter streamWriter, IEnumerable<string> list)
+        {
+            //foreach (string entry in list)
+            //{              
+            //    string temp = entry.Substring(directory.Length);
+            //    string json = JsonConvert.SerializeObject(temp);               
+            //    streamWriter.Write(json);                       
+            //}
+            string json = JsonConvert.SerializeObject(list);
+            streamWriter.Write(json);
+
         }
 
     }

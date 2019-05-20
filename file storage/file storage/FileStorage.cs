@@ -35,20 +35,17 @@ namespace file_storage
                     HttpListenerContext context = Listener.GetContext();
                     HttpListenerRequest request = context.Request;
                     string method = request.HttpMethod;
-                    Console.WriteLine(method);
                     ICommand requestCommand = CommandParser.GetCommand(method);
                     HttpListenerResponse response = context.Response;
-
                     // requestCommand.CreateRequest(StorageFolder, request, response);
-
                     Thread ClientThread = new Thread(() => { requestCommand.CreateRequest(StorageFolder, request, response); });
                     ClientThread.IsBackground = true;
                     ClientThread.Start();
                 }
             }
-            catch
+            catch (Exception e)
             {
-                Console.WriteLine("Error");
+                Console.WriteLine("Error: {0}", e.Message);
             }
             finally
             {

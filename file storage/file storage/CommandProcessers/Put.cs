@@ -10,15 +10,15 @@ namespace file_storage.CommandProcessers
             string fullPath = directory + request.RawUrl;
             try
             {
-                const int BUF = 65535;
                 string copyHeader = ConfigurationManager.AppSettings["Copy"];
                 var copyPath = request.Headers[copyHeader];
                 if (copyPath != null)
                 {
-                    if (File.Exists(fullPath))
+                    string tempPath = directory + "/" + copyPath.TrimStart('/');
+                    if (File.Exists(tempPath))
                     {
-                        string tempPath = directory + "/" + copyPath.TrimStart('/');
-                        File.Copy(fullPath, tempPath);
+                        
+                        File.Copy(tempPath, fullPath);
                     }                                         
                     else
                     {
@@ -34,9 +34,10 @@ namespace file_storage.CommandProcessers
                         Directory.CreateDirectory(dirname);
                     }
 
-                    using (var newFile = new FileStream(fullPath, FileMode.Create))
+                    using (var newFile = new FileStream(fullPath, FileMode.OpenOrCreate))
                     {
-                        request.InputStream.CopyTo(newFile, BUF);
+                        request.InputStream.CopyTo(newFile);
+                        
                     }
                 }              
             }
